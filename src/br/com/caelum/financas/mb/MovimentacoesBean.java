@@ -8,8 +8,10 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import br.com.caelum.financas.dao.CategoriaDao;
 import br.com.caelum.financas.dao.ContaDao;
 import br.com.caelum.financas.dao.MovimentacaoDao;
+import br.com.caelum.financas.modelo.Categoria;
 import br.com.caelum.financas.modelo.Conta;
 import br.com.caelum.financas.modelo.Movimentacao;
 import br.com.caelum.financas.modelo.TipoMovimentacao;
@@ -22,6 +24,9 @@ public class MovimentacoesBean implements Serializable {
 	private MovimentacaoDao movimentacaoDao;
 	
 	@Inject
+	private CategoriaDao categoriaDao;
+	
+	@Inject
 	private ContaDao contaDao;
 
 	private static final long serialVersionUID = 1L;
@@ -30,6 +35,22 @@ public class MovimentacoesBean implements Serializable {
 	private Movimentacao movimentacao = new Movimentacao();
 	private Integer contaId;
 	private Integer categoriaId;
+	private List<Categoria> categorias;
+	
+	public List<Categoria> getCategorias() {
+		if(this.categorias == null){
+			System.out.println("Listando categorias");
+			this.categorias=this.categoriaDao.lista();
+		}		
+		return categorias;
+	}
+
+	public void adicionaCategoria(){
+		if(this.categoriaId != null && this.categoriaId>0){
+			Categoria categoria = categoriaDao.procura(this.categoriaId);
+			this.movimentacao.getCategorias().add(categoria);
+		}
+	}
 	
 	
 	public void grava() {
@@ -38,7 +59,7 @@ public class MovimentacoesBean implements Serializable {
 		Conta contaRelacionada = contaDao.busca(contaId);
 		movimentacao.setConta(contaRelacionada);
 		movimentacaoDao.adiciona(movimentacao);
-		this.movimentacoes=movimentacaoDao.lista();
+		this.movimentacoes=movimentacaoDao.listaComCategorias();
 		limpaFormularioDoJSF();
 	}
 	
@@ -48,7 +69,7 @@ public class MovimentacoesBean implements Serializable {
 		Conta contaRelacionada = contaDao.busca(contaId);
 		movimentacao.setConta(contaRelacionada);
 		movimentacaoDao.remove(movimentacao);
-		this.movimentacoes=movimentacaoDao.lista();
+		this.movimentacoes=movimentacaoDao.listaComCategorias();
 		limpaFormularioDoJSF();
 	}
 

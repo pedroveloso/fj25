@@ -3,18 +3,19 @@ package br.com.caelum.financas.dao;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import br.com.caelum.financas.modelo.Conta;
 
 @Stateless
 public class ContaDao {
 
-	@PersistenceContext
+	@Inject
 	EntityManager manager;
 
 	public void adiciona(Conta conta) {
+		manager.joinTransaction();
 		this.manager.persist(conta);
 	}
 
@@ -28,11 +29,13 @@ public class ContaDao {
 	}
 
 	public void remove(Conta conta) {
+		manager.joinTransaction();
 		Conta contaParaRemover = this.manager.find(Conta.class, conta.getId());
 		this.manager.remove(contaParaRemover);
 	}
 	
 	public void altera(Conta conta){
+		manager.joinTransaction();
 		this.manager.merge(conta);
 	}
 
